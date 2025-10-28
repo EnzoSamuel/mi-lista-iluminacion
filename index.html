@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lista de Equipos de Iluminación</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: -webkit-linear-gradient(90deg, #1f2c51,#1f2c51,#000000);
+      background: linear-gradient(90deg, #1f2c51,#1f2c51,#000000);
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffffff;
+      margin-bottom: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .categoria {
+      background: #2c3e50;
+      color: white;
+      padding: 1rem;
+      margin: 1.5rem 0 0.5rem 0;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .categoria::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: #4a6fa5;
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #4a6fa5;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .cantidad {
+      font-size: 1.2rem;
+      font-weight: bold;
+      min-width: 40px;
+    }
+
+    .botones {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #4a6fa5;
+      color: white;
+      transition: background 0.2s;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background-color: #3a5a80;
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #descargar {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #descargar:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Equipos de Iluminación</h1>
+
+    <div id="tabla-contenedor">
+      <!-- Las tablas se generarán con JavaScript -->
+    </div>
+
+    <button id="descargar">Descargar tabla</button>
+  </div>
+
+  <script>
+    // Equipos organizados por categorías
+    const equiposPorCategoria = {
+      "💡 ILUMINACIÓN": [
+        "HMI Fresnel 1.2 kW con balasto y manguera",
+        "HMI Fresnel 2.5 kW con balasto y manguera",
+        "HMI Fresnel 4 kW con balasto y manguera",
+        "HMI PAR 4 kW con manguera y lupas",
+        "Fresnel LED 200 W",
+        "Fresnel LED 300 W",
+        "Fresnel LED 400 W",
+        "Prixma Flex 60 Dexel con perno o morza",
+        "Prixma Flex 120 Dexel con perno o morza",
+        "Prixma Flex 120Q Dexel con perno o morza",
+        "Aputure 600 D (Daylight)",
+        "Aputure 1200 Bicolor",
+        "SkyPanel S60-C (ARRI)",
+        "Minibruto LED",
+        "Minibruto Bi-Color LED",
+        "PAR LED RGBW 18×10 W",
+        "Protone LED",
+        "Móvil Beam 230 PLS",
+        "Móvil tipo 3 en 1",
+        "Barra con movimiento Avenger D520",
+        "Marco 1×1 m",
+        "Marco de Gridcloth",
+        "Bandera de tela negra 1×1 m",
+        "Gelatinas y difusiones"
+      ],
+      "🎥 SOPORTES Y ESTRUCTURAS": [
+        "Trípode Avenger 1045CS (A100) combo",
+        "Trípode Avenger 1035CS (A110) combo",
+        "Trípode Avenger 1020CS (A120) combo",
+        "Trípode Manfrotto 087NWB con malacate",
+        "Trípode Manfrotto 2 tramos",
+        "Trípode Manfrotto 3 tramos",
+        "Ascensor extensible 3 a 5 m",
+        "Rack porta pantalla",
+        "Pantalla refractaria"
+      ],
+      "🔩 GRIPERÍA Y SUJETOS": [
+        "Movimiento Avenger D200",
+        "Movimiento Avenger D400",
+        "Garra Lock-All",
+        "Pinza Cocodrilo Avenger C1525",
+        "Pinza Maffer Avenger C1575B con perno E600",
+        "Grampa Avenger C150",
+        "Morza C150",
+        "Linga de seguridad",
+        "Kit de plaquetas x 10"
+      ],
+      "⚡ ELECTRICIDAD Y CABLES": [
+        "Balasto HMI 4/2.5 kW",
+        "Tablero trifásico",
+        "Tablero derivador trifásico x 12 bocas",
+        "Tablero Dexel chico",
+        "Tablero Steck 5×32",
+        "Línea trifásica Steck 5×32",
+        "Línea 25 mm x 16 m con fichas VR",
+        "Línea 25 mm x 25 m con fichas VR",
+        "Chicote VR hembra/macho",
+        "Caja bornera",
+        "Jabalina con VR",
+        "Línea a tierra x 20 m",
+        "Cable DMX x 10 m",
+        "Cable XLR5 x 10 m",
+        "Adaptador XLR5 macho / XLR3 hembra",
+        "Adaptador XLR3 macho / XLR5 hembra",
+        "Splitter XLR5",
+        "Splitter DMX",
+        "Zapatilla 30 A",
+        "Zapatilla 30–10 A",
+        "Zapatilla 10 A (Cambre)",
+        "Alargue 30 A x 10 m",
+        "Alargue 30 A x 25 m",
+        "Alargue 10 A x 10 m"
+      ],
+      "🚛 TRANSPORTE Y SOPORTE LOGÍSTICO": [
+        "Carro de transporte para trípodes combo",
+        "Carreta de transporte",
+        "Zorra de transporte",
+        "Escalera dieléctrica x 12 escalones (3.5 m)",
+        "Escalera telescópica",
+        "Escalera x 12",
+        "Bacha grande negra",
+        "Bacha mediana",
+        "Cajón chico",
+        "Bolsa de arena"
+      ],
+      "🧰 VARIOS": [
+        "Tres medidas",
+        "Consola de luces"
+      ]
+    };
+
+    // Estado de cantidades (inicializado en 0 para todos los equipos)
+    let cantidades = {};
+    let todosLosEquipos = [];
+
+    // Construir array plano de todos los equipos y estado de cantidades
+    for (const categoria in equiposPorCategoria) {
+      equiposPorCategoria[categoria].forEach(equipo => {
+        todosLosEquipos.push({ categoria, nombre: equipo });
+        cantidades[equipo] = 0;
+      });
+    }
+
+    // Referencias al DOM
+    const contenedor = document.getElementById('tabla-contenedor');
+    const botonDescargar = document.getElementById('descargar');
+
+    // Función para renderizar todas las tablas por categoría
+    function renderizarTablas() {
+      contenedor.innerHTML = '';
+      
+      for (const categoria in equiposPorCategoria) {
+        // Crear título de categoría
+        const divCategoria = document.createElement('div');
+        divCategoria.className = 'categoria';
+        divCategoria.textContent = categoria;
+        contenedor.appendChild(divCategoria);
+
+        // Crear tabla para esta categoría
+        const tabla = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        
+        thead.innerHTML = `
+          <tr>
+            <th>Equipo</th>
+            <th>Cantidad</th>
+            <th>Acción</th>
+          </tr>
+        `;
+        tabla.appendChild(thead);
+        tabla.appendChild(tbody);
+
+        // Agregar filas para cada equipo en esta categoría
+        equiposPorCategoria[categoria].forEach(equipo => {
+          const tr = document.createElement('tr');
+
+          const tdEquipo = document.createElement('td');
+          tdEquipo.textContent = equipo;
+          tdEquipo.style.textAlign = 'left';
+          tdEquipo.style.paddingLeft = '1.5rem';
+
+          const tdCantidad = document.createElement('td');
+          tdCantidad.className = 'cantidad';
+          tdCantidad.textContent = cantidades[equipo];
+
+          const tdBotones = document.createElement('td');
+          tdBotones.className = 'botones';
+
+          const btnMenos = document.createElement('button');
+          btnMenos.className = 'btn';
+          btnMenos.textContent = '−';
+          btnMenos.disabled = cantidades[equipo] === 0;
+          btnMenos.onclick = () => {
+            if (cantidades[equipo] > 0) {
+              cantidades[equipo]--;
+              renderizarTablas();
+            }
+          };
+
+          const btnMas = document.createElement('button');
+          btnMas.className = 'btn';
+          btnMas.textContent = '+';
+          btnMas.onclick = () => {
+            cantidades[equipo]++;
+            renderizarTablas();
+          };
+
+          tdBotones.appendChild(btnMenos);
+          tdBotones.appendChild(btnMas);
+
+          tr.appendChild(tdEquipo);
+          tr.appendChild(tdCantidad);
+          tr.appendChild(tdBotones);
+
+          tbody.appendChild(tr);
+        });
+
+        contenedor.appendChild(tabla);
+      }
+    }
+
+    // Generar PDF con jsPDF
+    function generarPDF() {
+      // Filtrar solo los equipos con cantidad > 0
+      const seleccionados = todosLosEquipos.filter(item => cantidades[item.nombre] > 0);
+      
+      if (seleccionados.length === 0) {
+        alert('No hay equipos seleccionados para descargar.');
+        return;
+      }
+
+      // Inicializar jsPDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text('Lista de Equipos Seleccionados', 14, 20);
+      doc.setFontSize(12);
+      doc.setTextColor(100);
+      doc.text('Equipos de iluminación Cesar', 14, 26);
+      doc.setTextColor(0);
+
+      // Preparar datos para la tabla
+      const filas = [];
+      seleccionados.forEach(item => {
+        filas.push([item.nombre, cantidades[item.nombre].toString()]);
+      });
+
+      // Agregar tabla al PDF
+      doc.autoTable({
+        head: [['Equipo', 'Cantidad']],
+        body: filas,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { 
+          fillColor: [74, 111, 165],
+          fontSize: 10,
+          fontStyle: 'bold'
+        },
+        styles: { 
+          fontSize: 10,
+          cellPadding: 5
+        },
+        columnStyles: {
+          0: { cellWidth: 130 },
+          1: { cellWidth: 25, halign: 'center' }
+        }
+      });
+
+      // Descargar
+      doc.save('equipos_iluminacion.pdf');
+    }
+
+    // Evento del botón de descarga
+    botonDescargar.addEventListener('click', generarPDF);
+
+    // Renderizar al cargar
+    renderizarTablas();
+  </script>
+</body>
+</html>
+
